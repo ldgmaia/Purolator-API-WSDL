@@ -1,18 +1,18 @@
 const soap = require('soap')
 
 // 🔐 Your Purolator Dev credentials
-const DEV_KEY = '1133cc20897f485a9a2a5d5bb1d38e5c'
-const DEV_PASS = '^tY?Dmkg'
+const KEY = process.env.API_KEY
+const PASSWORD = process.env.API_PASSWORD
 
 // 🔍 A valid test tracking PIN (Purolator sandbox value)
-const TRACKING_PIN = 'M123'
+const TRACKING_PIN = '335503145286'
 
 // 📄 WSDL URL (SOAP contract)
-const WSDL_URL = require('path').resolve(__dirname, 'tracking.wsdl')
+const WSDL_URL = require('path').resolve(__dirname, 'TrackingService.wsdl')
 
 // 🔗 Endpoint URL (must match the WSDL's service location)
 const SERVICE_URL =
-  'https://devwebservices.purolator.com/PWS/V1/Tracking/TrackingService.asmx'
+  'https://webservices.purolator.com/PWS/V1/Tracking/TrackingService.asmx'
 
 async function trackPackage() {
   try {
@@ -21,7 +21,7 @@ async function trackPackage() {
     })
 
     // 🔐 Set Basic Auth for your dev credentials
-    client.setSecurity(new soap.BasicAuthSecurity(DEV_KEY, DEV_PASS))
+    client.setSecurity(new soap.BasicAuthSecurity(KEY, PASSWORD))
 
     // 🧾 Set the SOAP Header (RequestContext) — required by Purolator
     const soapHeader = {
@@ -52,6 +52,10 @@ async function trackPackage() {
     const [result] = await client.TrackPackagesByPinAsync(args)
 
     console.log('✅ Tracking Result:\n', JSON.stringify(result, null, 2))
+    console.log(
+      result.TrackingInformationList.TrackingInformation.at(0).Scans.Scan.at(0)
+        .Description
+    )
   } catch (error) {
     console.error('❌ Error occurred:', error.message || error)
   }
